@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+ 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Crear Usuario</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/png" href="icono.png">
+  <meta name="theme-color" content="#28a745">
+ 
+ <style>
+    :root {
+      --bg-color: #212121;
+      --card-bg-color: #333333;
+      --text-color: #ffffff;
+      --placeholder-color: #bbbbbb;
+      --primary-color: #007bff;
+      --success-color: #28a745;
+      --danger-color: #dc3545;
+      --border-radius: 12px;
+      --shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+     /*background-color: var(--bg-color);*/
+     background-image: url(fondo.jpeg);
+      background-size: cover;
+      background-repeat: no-repeat;
+        padding: 20px;
+      color: var(--text-color);
+      margin: 0;
+      line-height: 1.6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+    .card {
+    /*background-color: var(--card-bg-color);*/
+      backdrop-filter: blur (3px);
+      background-color: rgba(60, 66, 63, 0.404);
+      padding: 30px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+    h2 {
+      color: var(--success-color);
+      margin-bottom: 25px;
+      font-size: 1.8em;
+    }
+    .input-group {
+      margin-bottom: 20px;
+    }
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 15px;
+      margin: 10px 0;
+      border: 1px solid #555;
+      border-radius: var(--border-radius);
+      background-color: #444;
+      color: var(--text-color);
+      font-size: 1em;
+      box-sizing: border-box;
+      transition: border-color 0.3s;
+      text-shadow: none;
+    }
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+    input::placeholder {
+      color: var(--placeholder-color);
+      opacity: 0.8;
+    }
+    button {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: var(--border-radius);
+      background-color: var(--success-color);
+      color: var(--text-color);
+      font-size: 1.1em;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+    button:hover {
+      background-color: #218838;
+      transform: translateY(-2px);
+    }
+    .mensaje {
+      margin-top: 20px;
+      font-weight: bold;
+      color: var(--danger-color);
+    }
+    .boton-link {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.95em;
+    }
+    a {
+      text-shadow: none;
+      text-decoration: none;
+      color: var(--primary-color);
+      display: block;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Crear Nuevo Usuario</h2>
+ 
+    <input type="text" id="nuevoUsuario" placeholder="Nombre de usuario" />
+    <input type="password" id="nuevaContrasena" placeholder="Contraseña" />
+    <input type="password" id="confirmarContrasena" placeholder="Confirmar contraseña" />
+    <button onclick="crearCuenta()">Crear Cuenta</button>
+    <div class="mensaje" id="mensaje"></div>
+ 
+    <div class="boton-link">
+      <a href="index.html">Volver al Inicio</a>
+    </div>
+  
+  </div>
+ 
+  <script>
+    function crearCuenta() {
+      const usuario = document.getElementById("nuevoUsuario").value.trim();
+      const contrasena = document.getElementById("nuevaContrasena").value;
+      const confirmarContrasena = document.getElementById("confirmarContrasena").value; // Obtener el valor del nuevo campo
+      const mensaje = document.getElementById("mensaje");
+
+      // Validar que todos los campos estén completos
+      if (usuario === "" || contrasena === "" || confirmarContrasena === "") {
+        mensaje.textContent = "Por favor, completa todos los campos.";
+        mensaje.style.color = "var(--danger-color)";
+        return;
+      }
+
+      // Validar que las contraseñas coincidan
+      if (contrasena !== confirmarContrasena) {
+        mensaje.textContent = "Las contraseñas no coinciden. Por favor, inténtalo de nuevo.";
+        mensaje.style.color = "var(--danger-color)";
+        return;
+      }
+
+      const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+
+      const existe = usuarios.some(u => u.usuario === usuario);
+      if (existe) {
+        mensaje.textContent = "Este nombre de usuario ya existe.";
+        mensaje.style.color = "var(--danger-color)";
+        return;
+      }
+
+      usuarios.push({ usuario, contrasena });
+      localStorage.setItem("usuarios", JSON.stringify(usuarios));
+
+      mensaje.textContent = "Cuenta creada con éxito ✅";
+      mensaje.style.color = "var(--success-color)";
+    }
+  </script>
+</body>
+</html>

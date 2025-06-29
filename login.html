@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Iniciar Sesion</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/png" href="icono.png">
+  <meta name="theme-color" content="#28a745">
+  <style>
+    :root {
+      --bg-color: #212121;
+      --card-bg-color: #333333;
+      --text-color: #ffffff;
+      --placeholder-color: #bbbbbb;
+      --primary-color: #007bff;
+      --success-color: #28a745;
+      --danger-color: #dc3545;
+      --border-radius: 12px;
+      --shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+      /*background-color: var(--bg-color);*/
+      background-image: url(fonfo.png);
+      background-size: cover;
+      background-repeat: no-repeat;
+      padding: 20px;
+      color: var(--text-color);
+      margin: 0;
+      line-height: 1.6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-weight: 600;
+      text-shadow: none;
+      /* Elimina la sombra de texto antigua */
+    }
+
+    .card {
+      /*background-color: var(--card-bg-color);*/
+      backdrop-filter: blur (3px);
+      background-color: rgba(60, 66, 63, 0.404);
+      padding: 30px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      max-width: 350px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    input {
+      width: 100%;
+      padding: 15px;
+      margin: 10px 0;
+      font-size: 1em;
+      border-radius: var(--border-radius);
+      color: var(--text-color);
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-sizing: border-box;
+      transition: border-color 0.3s ease, background-color 0.3s ease;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+
+    input::placeholder {
+      color: var(--placeholder-color);
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      margin: 10px 0;
+      font-size: 1.1em;
+      border-radius: var(--border-radius);
+      background-color: var(--primary-color);
+      color: var(--text-color);
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .mensaje {
+      text-align: center;
+      margin-top: 15px;
+      color: var(--danger-color);
+      font-weight: 500;
+    }
+
+    .boton-link {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.95em;
+    }
+
+    a {
+      text-shadow: none;
+      text-decoration: none;
+      color: var(--primary-color);
+      display: block;
+      margin-top: 10px;
+    }
+
+  
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+    <h2>Iniciar Sesión</h2>
+
+    <input type="text" id="usuario" placeholder="Nombre de usuario" />
+    <input type="password" id="contrasena" placeholder="Contraseña" />
+    <button onclick="iniciarSesion()">Entrar</button>
+    <div class="mensaje" id="mensaje"></div>
+
+    <div class="boton-link">
+      <a href="crear_usuario.html">Crear nueva cuenta</a>
+      <a href="recuperar_contrasena.html">¿Olvidaste tu contraseña?</a>
+    </div>
+
+
+  </div>
+
+
+  <script>
+    function iniciarSesion() {
+      const usuario = document.getElementById("usuario").value.trim();
+      const contrasena = document.getElementById("contrasena").value;
+      const mensaje = document.getElementById("mensaje");
+
+      const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+
+      const encontrado = usuarios.find(u => u.usuario === usuario && u.contrasena === contrasena);
+      if (encontrado) {
+        localStorage.setItem("usuarioActivo", JSON.stringify(usuario));
+        window.location.href = "index.html";
+      } else {
+        mensaje.textContent = "Usuario o contraseña incorrectos ❌";
+      }
+    }
+  </script>
+</body>
+
+</html>

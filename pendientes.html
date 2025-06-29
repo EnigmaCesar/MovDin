@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<head>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pagos Pendientes</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/png" href="icono.png">
+  <meta name="theme-color" content="#28a745">
+
+  <style>
+    :root {
+      --bg-color: #212121;
+      --card-bg-color: #333333;
+      --text-color: #ffffff;
+      --placeholder-color: #bbbbbb;
+      --primary-color: #007bff;
+      --success-color: #28a745;
+      --danger-color: #dc3545;
+      --border-radius: 12px;
+      --shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+     /*background-color: var(--bg-color);*/
+     background-image: url(fonfo.png);
+      background-size: cover;
+      background-repeat: no-repeat;
+       padding: 20px;
+      color: var(--text-color);
+      margin: 0;
+      line-height: 1.6;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+    .menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      transition: opacity 0.3s ease;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .menu-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .menu-content {
+      text-align: center;
+      font-size: 1.4em;
+      color: var(--text-color);
+      background-color: var(--card-bg-color);
+      padding: 40px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      max-width: 80%;
+    }
+    .menu-content a {
+      color: var(--success-color);
+      text-decoration: none;
+      display: block;
+      margin: 15px 0;
+      font-weight: 500;
+    }
+    .menu-button {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      z-index: 1001;
+      width: 50px;
+      height: 50px;
+      background-color: var(--card-bg-color);
+      color: var(--text-color);
+      border: none;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      font-size: 2em;
+      line-height: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .card {
+     /*background-color: var(--card-bg-color);*/
+     backdrop-filter: blur (3px);
+     background-color: rgba(60, 66, 63, 0.404);
+     margin: 20px auto;
+      padding: 20px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      max-width: 500px;
+    }
+    input,
+    textarea,
+    select {
+      width: 100%;
+      padding: 15px;
+      margin: 10px 0;
+      font-size: 1em;
+      border-radius: var(--border-radius);
+      color: var(--text-color);
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-sizing: border-box;
+      transition: border-color 0.3s ease, background-color 0.3s ease;
+    }
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+    textarea::placeholder,
+    input::placeholder {
+      color: var(--placeholder-color);
+    }
+    button {
+      width: 100%;
+      padding: 15px;
+      margin: 10px 0;
+      font-size: 1.1em;
+      border-radius: var(--border-radius);
+      background-color: var(--primary-color);
+      color: var(--text-color);
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+    }
+    button:active {
+      transform: scale(0.98);
+    }
+    .saludo {
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 1.2em;
+    }
+    .pendiente-item {
+        display: block;
+        background-color: rgba(255, 255, 255, 0.1);
+        padding: 15px;
+        margin-bottom: 10px;
+        border-radius: var(--border-radius);
+        text-decoration: none;
+        color: var(--text-color);
+        transition: background-color 0.2s ease;
+    }
+    .pendiente-item:hover {
+        background-color: rgba(255, 255, 255, 0.15);
+    }
+  </style>
+
+</head>
+
+<body>
+  <button onclick="toggleMenu()" class="menu-button">☰</button>
+
+  <div id="menuDesplegable" class="menu-overlay">
+    <div class="menu-content">
+      <a href="registro.html">Historial</a>
+      <a href="graficos.html">Ver Gráficos</a>
+      <a href="index.html">Volver al inicio</a>
+      <a href="login.html" onclick="cerrarSesion()">Cerrar Sesión</a><br>
+    </div>
+  </div>
+  
+  <div class="card">
+    <div class="saludo">
+        <h2>Registrar Pago Pendiente</h2>
+    </div>
+
+    <input type="text" id="montoPendiente" placeholder="Monto (Gs.)" oninput="formatearConPuntos(this)">
+    <input type="text" id="acreedor" placeholder="Acreedor">
+    <textarea id="descripcion" placeholder="Descripción..."></textarea>
+    <input type="date" id="fechaVencimiento">
+    <button onclick="guardarPendiente()">Guardar Pendiente</button>
+    <br>
+   
+  </div>
+
+  <div class="card" style="margin-top: 20px;">
+      <h2>Pagos Pendientes</h2>
+      <div id="listaPendientes">
+          </div>
+  </div>
+
+
+  <script>
+    const usuarioActivo = JSON.parse(localStorage.getItem("usuarioActivo"));
+
+    if (!usuarioActivo) {
+      window.location.href = "login.html";
+    }
+
+    function formatearConPuntos(input) {
+      let valor = input.value.replace(/\D/g, "");
+      valor = valor.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+      input.value = valor;
+    }
+
+    function guardarPendiente() {
+        const monto = parseInt(document.getElementById("montoPendiente").value.replace(/\./g, '')) || 0;
+        const acreedor = document.getElementById("acreedor").value;
+        const descripcion = document.getElementById("descripcion").value;
+        const fechaVencimiento = document.getElementById("fechaVencimiento").value;
+
+        if (monto > 0 && acreedor && fechaVencimiento) {
+            const nuevoPendiente = { 
+                nombre: usuarioActivo, 
+                monto, 
+                acreedor, 
+                descripcion, 
+                fechaVencimiento, 
+                pagado: false 
+            };
+
+            let pendientes = JSON.parse(localStorage.getItem("pagosPendientes")) || [];
+            pendientes.push(nuevoPendiente);
+            localStorage.setItem("pagosPendientes", JSON.stringify(pendientes));
+            
+            alert("Pago pendiente guardado con éxito.");
+            document.getElementById("montoPendiente").value = "";
+            document.getElementById("acreedor").value = "";
+            document.getElementById("descripcion").value = "";
+            document.getElementById("fechaVencimiento").value = "";
+            mostrarListaPendientes(); // Llama a la función para actualizar la lista
+        } else {
+            alert("Por favor, completa todos los campos.");
+        }
+    }
+
+    function mostrarListaPendientes() {
+        const pendientes = JSON.parse(localStorage.getItem("pagosPendientes")) || [];
+        const listaPendientesDiv = document.getElementById("listaPendientes");
+        
+        const pendientesUsuario = pendientes.filter(p => p.nombre === usuarioActivo);
+        
+        if (pendientesUsuario.length > 0) {
+            const listaHTML = pendientesUsuario.map((pago, index) => `
+                <a href="detalle-pendiente.html?indice=${index}" class="pendiente-item">
+                    <strong>Monto:</strong> Gs. ${pago.monto.toLocaleString('de-DE')}
+                    <br>
+                    <strong>Acreedor:</strong> ${pago.acreedor}
+                    <br>
+                    <strong>Estado:</strong> ${pago.pagado ? '<span style="color: var(--success-color);">Pagado</span>' : '<span style="color: var(--danger-color);">Pendiente</span>'}
+                </a>
+            `).join("");
+            listaPendientesDiv.innerHTML = listaHTML;
+        } else {
+            listaPendientesDiv.innerHTML = "<p style='text-align: center; color: var(--placeholder-color);'>No tienes pagos pendientes registrados.</p>";
+        }
+    }
+
+    // Llama a la función para mostrar la lista al cargar la página
+    document.addEventListener("DOMContentLoaded", mostrarListaPendientes);
+
+    function cerrarSesion() {
+      localStorage.removeItem("usuarioActivo");
+      window.location.href = "login.html";
+    }
+  </script>
+  
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(reg => console.log('Service Worker registrado ✅'))
+        .catch(err => console.log('Error al registrar SW ❌', err));
+    }
+
+    function toggleMenu() {
+      const menu = document.getElementById("menuDesplegable");
+      menu.classList.toggle('active');
+    }
+  </script>
+</body>
+
+</html>

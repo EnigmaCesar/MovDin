@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<head>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registro de Ingresos y Egresos</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/png" href="icono.png">
+  <meta name="theme-color" content="#28a745">
+
+  <style>
+    :root {
+      --bg-color: #212121;
+      --card-bg-color: #333333;
+      --text-color: #ffffff;
+      --placeholder-color: #bbbbbb;
+      --primary-color: #007bff;
+      --success-color: #28a745;
+      --danger-color: #dc3545;
+      --border-radius: 12px;
+      --shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+      /*background-color: var(--bg-color);*/
+      background-image: url(fonfo.png);
+      background-size: cover;
+      background-repeat: no-repeat;
+      
+       padding: 20px;
+      color: var(--text-color);
+      margin: 0;
+      line-height: 1.6;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }.menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      transition: opacity 0.3s ease;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .menu-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .menu-content {
+      text-align: center;
+      font-size: 1.4em;
+      color: var(--text-color);
+      background-color: var(--card-bg-color);
+      padding: 40px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      max-width: 80%;
+    }
+    .menu-content a {
+      color: var(--success-color);
+      text-decoration: none;
+      display: block;
+      margin: 15px 0;
+      font-weight: 500;
+    }
+    .menu-button {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      z-index: 1001;
+      width: 50px;
+      height: 50px;
+      background-color: var(--card-bg-color);
+      color: var(--text-color);
+      border: none;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      font-size: 2em;
+      line-height: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .card {
+     /*background-color: var(--card-bg-color);*/
+      backdrop-filter: blur (3px);
+      background-color: rgba(60, 66, 63, 0.404);
+      margin: 20px auto;
+      padding: 20px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      max-width: 500px;
+    }
+    .resumen {
+      text-align: center;
+      font-size: 1.5em;
+      margin-bottom: 20px;
+      padding: 15px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: var(--border-radius);
+      font-weight: bold;
+    }
+    .input-group {
+      margin-bottom: 15px;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 12px;
+      box-sizing: border-box;
+      margin-top: 8px;
+      border-radius: var(--border-radius);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background-color: rgba(255, 255, 255, 0.1);
+      color: var(--text-color);
+      font-size: 1em;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--primary-color);
+    }
+    input::placeholder, textarea::placeholder {
+      color: var(--placeholder-color);
+    }
+    button {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: var(--border-radius);
+      background-color: var(--primary-color);
+      color: var(--text-color);
+      font-size: 1.1em;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+    }
+    button:active {
+      transform: scale(0.98);
+    }
+    /* Estilo para las opciones del select */
+    select option {
+      background-color: var(--card-bg-color); /* Fondo oscuro para las opciones */
+      color: var(--text-color); /* Texto blanco para las opciones */
+    }
+    .saludo {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 1.2em;
+      font-weight: 500;
+    }
+    .saludo img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--primary-color);
+      margin-bottom: 10px;
+      box-shadow: var(--shadow);
+    }
+    /* Estilo para el contador de notificaciones */
+    .notification-badge {
+      background-color: var(--danger-color);
+      color: var(--text-color);
+      font-size: 0.7em;
+      font-weight: bold;
+      padding: 4px 8px;
+      border-radius: 50%;
+      position: absolute;
+      top: -5px; /* Ajusta la posición vertical */
+      right: -5px; /* Ajusta la posición horizontal */
+      z-index: 2;
+    }
+
+    /* Ajusta la posición del badge dentro del botón de menú */
+    .menu-button .notification-badge {
+        top: -8px;
+        right: -8px;
+        font-size: 0.6em;
+        padding: 3px 6px;
+    }
+    
+    /* Estilo para el badge en el enlace del menú */
+    .menu-content a {
+        position: relative;
+    }
+    
+    .menu-content a .notification-badge {
+        top: 50%;
+        right: 20px;
+        transform: translateY(-50%);
+        font-size: 0.8em;
+    }
+    
+  </style>
+</head>
+
+<body>
+  <button onclick="toggleMenu()" class="menu-button">
+    ☰
+    <span id="menuBadge" class="notification-badge" style="display: none;"></span>
+  </button>
+
+  <div id="menuDesplegable" class="menu-overlay">
+    <div class="menu-content">
+      <a href="perfil.html">Editar Perfil</a>
+      <a href="registro.html">Historial</a>
+      <a href="graficos.html">Ver Gráficos</a>
+      <a href="pendientes.html" style="position: relative;">
+        Pagos Pendientes
+        <span id="pendingCount" class="notification-badge" style="display: none;"></span>
+      </a>
+      <a href="login.html" onclick="cerrarSesion()">Cerrar Sesión</a><br>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="saludo" id="saludo"></div>
+    <div id="resumen" class="resumen"></div>
+
+    <div class="input-group">
+      <label for="tipo">Tipo:</label>
+      <select id="tipo">
+        <option value="ingreso">Ingreso</option>
+        <option value="egreso">Egreso</option>
+      </select>
+    </div>
+
+    <div class="input-group">
+      <label for="monto">Monto (Gs.):</label>
+      <input type="text" id="monto" placeholder="Ej: 150.000" oninput="formatoMoneda(this)" />
+    </div>
+
+    <div class="input-group">
+      <label for="motivo">Motivo:</label>
+      <select id="motivo">
+        <option value="Salario">Salario</option>
+        <option value="Venta">Venta</option>
+        <option value="Comida">Comida</option>
+        <option value="Transporte">Transporte</option>
+        <option value="Servicios">Servicios</option>
+        <option value="Ocio">Ocio</option>
+        <option value="Salud">Salud</option>
+        <option value="Otro">Otro</option>
+      </select>
+    </div>
+
+    <div class="input-group">
+      <label for="detalle">Detalle (opcional):</label>
+      <textarea id="detalle" rows="2" placeholder="Ej: Pago de almuerzo"></textarea>
+    </div>
+
+    <div class="input-group">
+      <label for="fecha">Fecha:</label>
+      <input type="date" id="fecha" />
+    </div>
+
+    <button onclick="guardarRegistro()">Guardar</button>
+  </div>
+
+  <script>
+    const usuarioActivo = JSON.parse(localStorage.getItem("usuarioActivo"));
+
+    if (!usuarioActivo) {
+      window.location.href = "login.html";
+    }
+
+    const resumenDiv = document.getElementById("resumen");
+    const saludoDiv = document.getElementById("saludo");
+    const datos = JSON.parse(localStorage.getItem("movimientos")) || [];
+
+    // Cargar datos del perfil para mostrar el nombre y la foto
+    const datosPerfil = JSON.parse(localStorage.getItem("perfil_" + usuarioActivo)) || {};
+    const nombreMostrar = datosPerfil.nombre || usuarioActivo;
+    const fotoPerfil = datosPerfil.foto || "";
+
+    saludoDiv.innerHTML = `
+      ${fotoPerfil ? `<img src="${fotoPerfil}" alt="Foto de perfil">` : ''}
+      <br>Hola, ${nombreMostrar}
+    `;
+
+    // NUEVA FUNCIÓN PARA DAR FORMATO AL NÚMERO
+    function formatoMoneda(input) {
+      // Eliminar cualquier caracter que no sea un dígito
+      let valor = input.value.replace(/\D/g, '');
+      
+      // Si el valor está vacío, no hacer nada
+      if (valor === '') {
+        input.value = '';
+        return;
+      }
+
+      // Convertir a número y luego a formato de moneda con puntos
+      valor = parseInt(valor, 10).toLocaleString('de-DE');
+      
+      // Asignar el valor formateado al input
+      input.value = valor;
+    }
+
+    function guardarRegistro() {
+      const tipo = document.getElementById("tipo").value;
+      // CAMBIO AQUÍ: Obtenemos el valor y eliminamos los puntos antes de parsearlo a número
+      const montoInput = document.getElementById("monto").value;
+      const monto = parseFloat(montoInput.replace(/\./g, '')) || 0; // Quita los puntos antes de convertir
+      
+      if (monto <= 0) {
+        alert("El monto debe ser mayor que 0.");
+        return;
+      }
+      const ingreso = tipo === "ingreso" ? monto : 0;
+      const egreso = tipo === "egreso" ? monto : 0;
+      const detalle = document.getElementById("detalle").value;
+      const fecha = document.getElementById("fecha").value;
+      const motivo = document.getElementById("motivo").value;
+      const nuevoRegistro = { nombre: usuarioActivo, ingreso, egreso, detalle, fecha, motivo };
+
+      datos.push(nuevoRegistro);
+      localStorage.setItem("movimientos", JSON.stringify(datos));
+      mostrarResumen();
+      document.querySelectorAll("input, textarea").forEach(el => el.value = "");
+    }
+
+    function mostrarResumen() {
+      const totales = datos.filter(d => d.nombre === usuarioActivo)
+        .reduce((acc, val) => {
+          acc.ingresos += val.ingreso;
+          acc.egresos += val.egreso;
+          return acc;
+        }, { ingresos: 0, egresos: 0 });
+
+      resumenDiv.innerHTML = `
+    <div><strong>Total actual:</strong> Gs. ${(totales.ingresos - totales.egresos).toLocaleString('de-DE')}</div>
+  `;
+    }
+
+    function cerrarSesion() {
+      localStorage.removeItem("usuarioActivo");
+      window.location.href = "login.html";
+    }
+    
+    // Función para actualizar el contador de notificaciones de pagos pendientes
+    function updatePendingCount() {
+        const usuarioActivo = JSON.parse(localStorage.getItem("usuarioActivo"));
+        const pendientes = JSON.parse(localStorage.getItem("pagosPendientes")) || [];
+        // Filtra los pagos pendientes por el usuario activo y que no estén marcados como pagados
+        const pendingCount = pendientes.filter(pago => pago.nombre === usuarioActivo && !pago.pagado).length;
+
+        const pendingCountLinkElement = document.getElementById("pendingCount");
+        const menuBadgeElement = document.getElementById("menuBadge");
+
+        if (pendingCount > 0) {
+            // Muestra el contador en el enlace
+            pendingCountLinkElement.textContent = pendingCount;
+            pendingCountLinkElement.style.display = 'inline-block';
+
+            // Muestra el contador en el botón del menú
+            menuBadgeElement.textContent = pendingCount;
+            menuBadgeElement.style.display = 'inline-block';
+        } else {
+            // Oculta ambos contadores si no hay pagos pendientes
+            pendingCountLinkElement.style.display = 'none';
+            menuBadgeElement.style.display = 'none';
+        }
+    }
+
+    // Llama a la función al cargar la página y también escucha cambios en localStorage
+    document.addEventListener("DOMContentLoaded", updatePendingCount);
+    window.addEventListener('storage', updatePendingCount);
+
+    mostrarResumen();
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(reg => console.log('Service Worker registrado ✅'))
+        .catch(err => console.log('Error al registrar SW ❌', err));
+    }
+
+    function toggleMenu() {
+      const menu = document.getElementById("menuDesplegable");
+      menu.classList.toggle('active');
+    }
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Historial Mensual</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/png" href="icono.png">
+  <meta name="theme-color" content="#28a745">
+  <style>
+    :root {
+      --bg-color: #212121;
+      --card-bg-color: #333333;
+      --text-color: #ffffff;
+      --placeholder-color: #bbbbbb;
+      --primary-color: #007bff;
+      --success-color: #28a745;
+      --danger-color: #dc3545;
+      --border-radius: 12px;
+      --shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+      /*background-color: var(--bg-color);*/
+      background-image: url(fonfo.png);
+      background-size: cover;
+      background-repeat: no-repeat;
+       padding: 20px;
+      color: var(--text-color);
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+
+    .menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      transition: opacity 0.3s ease;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .menu-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .menu-content {
+      text-align: center;
+      font-size: 1.4em;
+      color: var(--text-color);
+      background-color: var(--card-bg-color);
+      padding: 40px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      max-width: 80%;
+    }
+
+    .menu-content a {
+      color: var(--success-color);
+      text-decoration: none;
+      display: block;
+      margin: 15px 0;
+      font-weight: 500;
+    }
+
+    .menu-button {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      z-index: 1001;
+      width: 50px;
+      height: 50px;
+      background-color: var(--card-bg-color);
+      color: var(--text-color);
+      border: none;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      font-size: 2em;
+      line-height: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .card {
+    /*background-color: var(--card-bg-color);*/
+    backdrop-filter: blur (3px);
+    background-color: rgba(60, 66, 63, 0.404);
+    margin: 20px auto;
+      padding: 20px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      max-width: 500px;
+    }
+
+    .filtros {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+      align-items: center;
+    }
+
+    .filtros select,
+    .filtros input,
+    .filtros button {
+      padding: 10px;
+      font-size: 1em;
+      border-radius: 8px;
+      color: var(--text-color);
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-sizing: border-box;
+    }
+
+    .filtros select,
+    .filtros input {
+      flex-grow: 1;
+      min-width: 120px;
+    }
+    select option {
+      background-color: var(--card-bg-color); /* Fondo oscuro para las opciones */
+      color: var(--text-color); /* Texto blanco para las opciones */
+    }
+    .filtros button {
+      background-color: var(--primary-color);
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .filtros button:active {
+      transform: scale(0.98);
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+    }
+
+    th,
+    td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      white-space: nowrap;
+      /* Prevent text wrapping in cells */
+    }
+
+    th {
+      background-color: rgba(255, 255, 255, 0.2);
+      font-weight: 600;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    a {
+      text-align: center;
+      text-decoration: none;
+      color: var(--primary-color);
+      display: block;
+      margin-top: 20px;
+    }
+
+    .btn-eliminar-registro {
+      background-color: var(--danger-color);
+      color: var(--text-color);
+      border: none;
+      border-radius: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+    }
+
+    .btn-eliminar-registro:active {
+      transform: scale(0.95);
+    }
+  </style>
+</head>
+
+<body>
+  <button onclick="toggleMenu()" class="menu-button">☰</button>
+
+  <div id="menuDesplegable" class="menu-overlay">
+    <div class="menu-content">
+      <a href="graficos.html">Ver Gráficos</a>
+      <a href="index.html">Volver al inicio</a>
+      <a href="login.html" onclick="cerrarSesion()">Cerrar Sesión</a><br>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Historial de Movimientos</h2>
+    <div class="filtros">
+      <select id="filtroTipo">
+        <option value="todos">Todos</option>
+        <option value="ingresos">Ingresos</option>
+        <option value="egresos">Egresos</option>
+      </select>
+      <input type="date" id="fechaDesde" placeholder="Desde">
+      <input type="date" id="fechaHasta" placeholder="Hasta">
+      <button onclick="aplicarFiltros()">Filtrar</button>
+      <button onclick="exportarCSV()" style="background-color: var(--success-color);">Exportar CSV</button>
+    </div>
+
+    <div class="table-container">
+      <table id="tablaRegistros">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Motivo</th>
+            <th>Ingreso (Gs.)</th>
+            <th>Egreso (Gs.)</th>
+            <th>Detalle</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <script>
+    const usuarioActivo = JSON.parse(localStorage.getItem("usuarioActivo"));
+    if (!usuarioActivo) {
+      window.location.href = "login.html";
+    }
+
+    // Se carga el array de datos desde localStorage. No es const para poder modificarlo.
+    let datos = JSON.parse(localStorage.getItem("movimientos")) || [];
+
+    document.addEventListener("DOMContentLoaded", () => {
+      aplicarFiltros();
+    });
+
+    function cargarTabla(registros) {
+      const tbody = document.querySelector("#tablaRegistros tbody");
+      tbody.innerHTML = "";
+      registros.forEach((item, index) => {
+        const row = tbody.insertRow();
+        row.insertCell(0).textContent = item.fecha;
+        row.insertCell(1).textContent = item.motivo;
+        row.insertCell(2).textContent = item.ingreso.toLocaleString("de-DE");
+        row.insertCell(3).textContent = item.egreso.toLocaleString("de-DE");
+        row.insertCell(4).textContent = item.detalle;
+        // Nueva celda para el botón de eliminar
+        const accionCell = row.insertCell(5);
+        accionCell.innerHTML = `<button class="btn-eliminar-registro" onclick="eliminarRegistro(${index})">Eliminar</button>`;
+      });
+    }
+
+    function eliminarRegistro(index) {
+      if (confirm("¿Estás seguro de que quieres eliminar este registro?")) {
+        // Eliminar el elemento del array por su índice
+        datos.splice(index, 1);
+        // Actualizar localStorage
+        localStorage.setItem("movimientos", JSON.stringify(datos));
+        // Recargar la tabla para que se actualice la vista
+        aplicarFiltros();
+        alert("Registro eliminado con éxito.");
+      }
+    }
+
+
+    function exportarCSV() {
+      const encabezados = ["Fecha", "Motivo", "Ingreso", "Egreso", "Detalle"];
+      const filas = datos.filter(d => d.nombre === usuarioActivo).map(item => [
+        item.fecha,
+        item.motivo,
+        item.ingreso,
+        item.egreso,
+        `\"${item.detalle}\"`,
+      ]);
+      let csvContent = "data:text/csv;charset=utf-8," + [encabezados, ...filas].map(e => e.join(",")).join("\n");
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "registro_" + usuarioActivo + ".csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function aplicarFiltros() {
+      const tipo = document.getElementById("filtroTipo").value;
+      const desde = document.getElementById("fechaDesde").value;
+      const hasta = document.getElementById("fechaHasta").value;
+
+      // Recargar los datos desde localStorage antes de filtrar
+      datos = JSON.parse(localStorage.getItem("movimientos")) || [];
+
+      const filtrados = datos.filter((item, index) => {
+        if (item.nombre !== usuarioActivo) return false;
+
+        const fechaOk = (!desde || item.fecha >= desde) && (!hasta || item.fecha <= hasta);
+        const tipoOk =
+          tipo === "todos" ||
+          (tipo === "ingresos" && item.ingreso > 0) ||
+          (tipo === "egresos" && item.egreso > 0);
+
+        return fechaOk && tipoOk;
+      });
+
+      cargarTabla(filtrados);
+    }
+
+    function cerrarSesion() {
+      localStorage.removeItem("usuarioActivo");
+      window.location.href = "login.html";
+    }
+
+    function toggleMenu() {
+      const menu = document.getElementById("menuDesplegable");
+      menu.classList.toggle('active');
+    }
+  </script>
+</body>
+
+</html>

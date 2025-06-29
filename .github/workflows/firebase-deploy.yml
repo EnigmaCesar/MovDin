@@ -1,0 +1,34 @@
+# Nombre del flujo de trabajo
+name: Deploy a Firebase Hosting
+
+# Evento que dispara el flujo de trabajo (cada vez que hay un push a la rama 'main')
+on:
+  push:
+    branches:
+      - main
+
+# Define los trabajos (jobs) que se ejecutarán
+jobs:
+  deploy:
+    # El trabajo se ejecuta en una máquina virtual de Ubuntu
+    runs-on: ubuntu-latest
+
+    # Pasos a seguir
+    steps:
+      # Paso 1: Baja el código de tu repositorio
+      - name: Checkout repository code
+        uses: actions/checkout@v3
+
+      # Paso 2: Despliega tu proyecto a Firebase Hosting
+      - name: Deploy to Firebase
+        uses: w9jds/firebase-action@master
+        with:
+          # ID de tu proyecto de Firebase (cámbialo por el tuyo)
+          args: deploy --only hosting
+          # Usa el token que guardaste como secreto
+          projectId: https://console.firebase.google.com/u/0/project/movdin-9eda2 # <-- IMPORTANTE: Cambia esto por el ID de tu proyecto
+          # La carpeta que contiene tu index.html
+          channelId: live # <-- Opcional: Despliega a un canal en vivo
+        env:
+          # Llama al secreto que guardaste en GitHub
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
